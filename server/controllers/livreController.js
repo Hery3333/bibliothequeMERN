@@ -66,3 +66,14 @@ export const updateLivre = async( req,res,next) => {
     }
     return res.status(200).json({livre})
 }
+
+//remove book
+export const deleteLivre = async(req,res,next) => {
+    const id = req.params.id
+    try {
+        await LivreModel.findByIdAndDelete(id)
+        return res.status(200).json({message:"Livre supprimer"})
+    } catch (error) {
+        return res.status(500).json({message: "Impossible de supprimer ce livre"})
+    }
+}
