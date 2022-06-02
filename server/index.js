@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 //Routes import
 import lecteurRoute from './routes/lecteurRoute.js'
+import livreRoute from './routes/livreRoute.js'
 
 const app = express();
 
@@ -24,3 +25,4 @@ mongoose.connect(database_url)
 
 //Routes
 app.use('/lecteur', lecteurRoute)
+app.use('/livre', livreRoute)

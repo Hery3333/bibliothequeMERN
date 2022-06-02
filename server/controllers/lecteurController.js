@@ -46,7 +46,7 @@ export const addLecteur = async(req, res, next)=> {
 //Update lecteur
 export const updateLecteur = async(req,res,next) => {
     const id = req.params.id;
-    const nom = req.body
+    const {nom} = req.body
     try {
         const lecteur = await LecteurModel.findByIdAndUpdate(id,{nom})
         return res.status(202).json({lecteur})
