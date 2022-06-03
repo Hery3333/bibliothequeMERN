@@ -9,6 +9,12 @@ const LecteurSchema = mongoose.Schema({
     nom: {
         type: String,
         required: true
+    },
+    livres:[{type: mongoose.Types.ObjectId,ref: 'livre'}],
+    nbPretActuel:{
+        type: Number,
+        default:0,
+        max:3
     }
 })
 

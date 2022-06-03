@@ -30,6 +30,17 @@ const livreSchema = mongoose.Schema({
     }
 })
 
+/**
+ * Please use following code for increment and Decrement quantity
+var mongoose = require('mongoose');
+
+Increment : 
+Inventory.findOneAndUpdate({_id :mongoose.Types.ObjectId(id)}, { $inc: { quantity : 1 }},{ new: true }).then((results) => { console.log(results)});
+
+Decrement : 
+Inventory.findOneAndUpdate({_id :mongoose.Types.ObjectId(id)}, { $inc: { quantity : -1 }},{ new: true }).then((results) => { console.log(results)});
+ */
+
 const LivreModel = mongoose.model('livre',livreSchema)
 
 export default LivreModel;
