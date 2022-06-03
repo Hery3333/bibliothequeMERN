@@ -14,49 +14,6 @@ export const getPrets = async(req,res,rep) => {
 
 
 //Add new Pret
-export const newPret = async(req, res, next) => {
-    const {numPret,numLecteur,numLivre,datePret,dateRetour} = req.body
-
-    let nbPretMaximum;
-
-    //verifier si le nbPretActuel du lecteur est max
-    try {
-        const nbPretMaximum = await LecteurModel.findOne({numLecteur})
-    } catch (error) {
-        return res.status(500).json({message: "Une erreur s'est produit lors d'enregistrement d'un nouveau pret"})
-    }
-
-    if(nbPretMaximum >= 3){
-        return res.status(403).json({message: "Nombre de pret maximal atteint"})
-    }
-
-    const newPret = new PretModel({numPret,numLecteur,numLivre,datePret,dateRetour})
-
-    try {
-        //enregistrer le pret
-        await newPret.save()
-
-        const livre = await LivreModel.findOne({numLivre})
-        const lecteur = await LecteurModel.findOne({numLecteur});
-
-        //Mise a jour livre
-        await LivreModel.findOneAndUpdate(numLivre,{
-            disponible: false,
-            nbFoisPret: livre.nbFoisPret + 1
-        })
-
-        lecteur.nbPretActuel = lecteur.nbPretActuel + 1
-        lecteur.livres.push(livre);
-
-        await lecteur.save()
-
-
-    } catch (error) {
-        return res.status(500).json({message: error.message})
-    }
-
-}
-
 export const addPret = async(req,res,next) => {
     const {numPret, numLecteur, numLivre, datePret,dateRetour} = req.body
     let lecteur,livre,pret;
@@ -66,7 +23,7 @@ export const addPret = async(req,res,next) => {
         livre = await LivreModel.findOne({numLivre})
 
         //verifier si le nombre de pret actuel du lecteur est superieur ou egal 3
-        if(lecteur.nbPretActuel >=3 ){
+        if(lecteur.nbPretActuel == 3 ){
             return res.status(403).json({message: "Ce lecteur a atteint le nombre de pret maximal"})
         }
 
@@ -87,5 +44,44 @@ export const addPret = async(req,res,next) => {
 
     } catch (error) {
         return console.log(error)
+    }
+}
+
+//update Pret
+export const updatePret = async(req,res,next) => {
+    const id = req.params.id;
+
+    try {
+        const pret = await PretModel.findById(id)
+        
+        const lecteur = await LecteurModel.findOne({numLecteur:pret.numLecteur})
+        lecteur.nbPretActuel = lecteur.nbPretActuel -1
+        await lecteur.save()
+        
+        const livre = await LivreModel.findOneAndUpdate(pret.numLivre,{disponible: true})
+
+        return res.status(200).json({message: "Livre rendue, pret updated"})
+
+    } catch (error) {
+        return res.status(500).json({message: error.message})
+    }
+}
+
+//remove pret
+export const deletePret = async(req,res,next) => {
+    const id = req.params.id
+
+    try {
+        const pret = await PretModel.findById(id)
+
+        const lecteur = await LecteurModel.findOneAndUpdate({numLecteur:pret.numLecteur},{nbPretActuel: nbPretActuel -1})
+        const livre = await LivreModel.findOneAndUpdate({numLivre:pret.numLivre},{disponible: true})
+
+        await PretModel.findByIdAndDelete(id);
+
+        return res.status(200).json({message: "Pret supprimer"})
+
+    } catch (error) {
+        return res.status(500).json({message:"Impossible de supprimer le pret"})
     }
 }
